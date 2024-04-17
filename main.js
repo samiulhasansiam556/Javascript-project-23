@@ -125,7 +125,7 @@ function loginUser() {
   const notify = document.querySelector("#notify");
 
   if (email === "" || password === "") {
-    notify.innerText = "Please provide email and password.";
+    notify.innerText = "Please provide email and passwordmmm.";
   } else {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {

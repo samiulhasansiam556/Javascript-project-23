@@ -57,15 +57,22 @@ function crearteUser(){
 
     createUserWithEmailAndPassword(auth,email,password).then((userCredentials)=>{
       const user = userCredentials;
-
-      if(user){
         notify.innerText = "User created success";
-      }else{
-        notify.innerText = "Some thing is wrong";
-      }
+    
   
-    }).catch((err)=>{
-      console.log(err);
+    }) .catch((error) => {
+      // Handle Signin errors
+      console.error("Firebase Authentication Error:", error);
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      if (errorCode === "auth/email-already-in-use") {
+        notify.innerText = "Invalid Email. Please try again.";
+      } else if (errorCode === "auth/weak-password") {
+        notify.innerText = "Weak Password!!.";
+      } else {
+        notify.innerText = "Something went wrong. Please try again later.";
+        console.error(errorMessage); // Log other errors for debugging
+      }
     })
 
   }
@@ -86,30 +93,64 @@ signup_btn.addEventListener("click",crearteUser);
 // login user........
 
 
-function loginUser(){
+// function loginUser(){
+//   const email = document.querySelector("#email").value;
+//   const password = document.querySelector("#password").value;
+
+//   if(email == "" || password == ""){
+//       notify.innerText = "plz provide email and password";
+//   }
+//   else{
+
+//     signInWithEmailAndPassword(auth,email,password).then((userCredentials)=>{
+//       const user = userCredentials;
+
+//       if(user){
+//         notify.innerText = "Login User";
+//       }else{
+//         notify.innerText = "Some thing is wrong";
+//       }
+  
+//     }).catch((err)=>{
+//       console.log(err);
+//     })
+
+//   }
+// }
+
+
+function loginUser() {
   const email = document.querySelector("#email").value;
   const password = document.querySelector("#password").value;
+  const notify = document.querySelector("#notify");
 
-  if(email == "" || password == ""){
-      notify.innerText = "plz provide email and password";
-  }
-  else{
-
-    signInWithEmailAndPassword(auth,email,password).then((userCredentials)=>{
-      const user = userCredentials;
-
-      if(user){
-        notify.innerText = "Login User";
-      }else{
-        notify.innerText = "Some thing is wrong";
-      }
-  
-    }).catch((err)=>{
-      console.log(err);
-    })
-
+  if (email === "" || password === "") {
+    notify.innerText = "Please provide email and password.";
+  } else {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // User successfully logged in
+        const user = userCredential.user;
+        notify.innerText = "User logged in successfully!";
+        // You can redirect or perform other actions here upon successful login
+      })
+      .catch((error) => {
+        // Handle login errors
+        console.error("Firebase Authentication Error:", error);
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        if (errorCode === "auth/wrong-password") {
+          notify.innerText = "Incorrect password. Please try again.";
+        } else if (errorCode === "auth/user-not-found") {
+          notify.innerText = "User not found. Please check your email.";
+        } else {
+          notify.innerText = "Something went wrong. Please try again later.";
+          console.error(errorMessage); // Log other errors for debugging
+        }
+      });
   }
 }
+
 
 const login_btn = document.querySelector("#login_btn");
 login_btn.addEventListener("click",loginUser);
@@ -165,26 +206,52 @@ logout_btn.addEventListener("click",logout);
 
 //forget password...
 
-const notify2 = document.querySelector(".notify2");
+
 
 function showForfetPasswordFrom(){
   document.querySelector('.forget_password').classList.add('visible');
 }
 
-function forgetPassword(){
-   const email = document.querySelector("#forget_email").value;
-   if(email == ""){
-    notify2.innerText = "Please Enter your Email";
-   }
-   else{
-    sendPasswordResetEmail(auth,email).then(()=>{
-      notify2.innerText = "Password reset email send check your email inbox";
-    }).then((err)=>{
-        console.log(err);
-    })
+// function forgetPassword(){
+//    const email = document.querySelector("#forget_email").value;
+//    if(email == ""){
+//     notify2.innerText = "Please Enter your Email";
+//    }
+//    else{
+//     sendPasswordResetEmail(auth,email).then((user)=>{
+//       console.log(user);
+//       notify2.innerText = "Password reset email send check your email inbox";
+//     }).then((err)=>{
+//         console.log(err);
+//     })
 
-   }
+//    }
+// }
+
+function forgetPassword() {
+  const email = document.querySelector("#forget_email").value;
+  const notify2 = document.querySelector(".notify2");
+
+  if (email == "") {
+      notify2.innerText = "Please enter your email.";
+  } else {
+      sendPasswordResetEmail(auth, email)
+          .then((userCredential) => {
+              notify2.innerText = "Password reset email sent. Please check your email inbox.";
+          })
+          .catch((error) => {
+              // Check if the error is due to user not found
+              if (error.code === "auth/user-not-found") {
+                  notify2.innerText = "Email not found. Please enter a valid email address.";
+              } else {
+                  // Handle other errors
+                  notify2.innerText = "Something went wrong. Please try again later.";
+                  console.error("Error sending password reset email:", error);
+              }
+          });
+  }
 }
+
 
 
 
